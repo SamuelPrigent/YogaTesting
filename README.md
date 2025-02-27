@@ -1,13 +1,15 @@
 # Yoga App
 
-## Prérequis
+## Prérequis & documentation
+
+### Backend
 
 - Java 11
-- NodeJS 16
 - MySQL
+  → [Readme backend](./back/README.md)
+
+### Frontend
+
+- NodeJS 16
 - Angular CLI 14
-
-## Documentation
-
-- [Frontend (Angular)](./front/README.md)
-- [Backend (Spring Boot)](./back/README.md)
+  → [Readme frontend](./front/README.md)
