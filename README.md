@@ -1,15 +1,15 @@
-# Yoga App
+# 🧘 Yoga App
 
-## Prérequis & documentation
+Un projet structuré en **frontend** et **backend**.
 
-### Backend
+## 📌 Prérequis & Documentation
 
-- Java 11
-- MySQL
-  → [Readme backend](./back/README.md)
+### 🔹 Backend ([Documentation](./back/README.md))
 
-### Frontend
+- **Langage** : Java 11
+- **Base de données** : MySQL
 
-- NodeJS 16
-- Angular CLI 14
-  → [Readme frontend](./front/README.md)
+### 🔹 Frontend ([Documentation](./front/README.md))
+
+- **Runtime** : Node.js 16
+- **Framework** : Angular CLI 14
