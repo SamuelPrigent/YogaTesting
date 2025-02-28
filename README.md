@@ -1,6 +1,6 @@
-# 🧘 Yoga App
+# Yoga App
 
-Un projet structuré en **frontend** et **backend**.
+Un projet mono-repo comportant **frontend** et **backend**.
 
 ## 📌 Prérequis & Documentation
 
@@ -14,11 +14,12 @@ Un projet structuré en **frontend** et **backend**.
 - **Runtime** : Node.js 16
 - **Framework** : Angular CLI 14
 
-## TESTING
+## ✅ Testing
 
-### Test unitaire et d'intégration Front
+### Test Frontend : unitaire et d'intégration
 
 Launching test (without coverage) :
+
 > npm run test 
 
 or to watch change :
@@ -29,13 +30,13 @@ Launching test with coverage :
 
 > npx jest --coverage
 
-### Test unitaire et d'intégration Back
+### Test Backend : unitaire et d'intégration
 
 Launch & generate the jacoco code coverage:
 
 > mvn clean test
 
-### E2E
+### Test E2E
 
 Launching e2e test:
 
