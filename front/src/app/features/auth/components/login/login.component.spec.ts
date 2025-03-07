@@ -76,78 +76,67 @@ describe('LoginComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+
+  it('component should be created', () => {
     expect(component).toBeTruthy();
   });
 
   // Test 1: Validation du formulaire
   describe('Form validation', () => {
     it('should mark form as invalid when empty', () => {
-      // Arrangement non nécessaire car le formulaire est initialisé vide
-      
-      // Assert
+      // Assert - form is not valid
       expect(component.form.valid).toBeFalsy();
     });
 
     it('should validate email format', () => {
       // Arrange
       const emailControl = component.form.get('email');
-      
-      // Act - email invalide
+      // Act
       emailControl?.setValue('invalid-email');
-      
-      // Assert
+      // Assert - email is not valid
       expect(emailControl?.valid).toBeFalsy();
       expect(emailControl?.hasError('email')).toBeTruthy();
-      
-      // Act - email valide
+      // Act
       emailControl?.setValue('valid@email.com');
-      
-      // Assert
+      // Assert - email is valid
       expect(emailControl?.valid).toBeTruthy();
     });
 
     it('should require password', () => {
       // Arrange
       const passwordControl = component.form.get('password');
-      
-      // Act & Assert
+      // Assert - not valid
       expect(passwordControl?.valid).toBeFalsy();
       expect(passwordControl?.hasError('required')).toBeTruthy();
-      
-      // Act - mot de passe valide
+      // Act
       passwordControl?.setValue('test-password!99');
-      
-      // Assert
+      // Assert - is valid
       expect(passwordControl?.valid).toBeTruthy();
     });
 
     it('should mark form as valid when all fields are correctly filled', () => {
-      // Arrange
+      // Arrange 
       component.form.setValue({
         email: 'test@test.com',
         password: 'test-password!99'
       });
-      
-      // Assert
+      // Act : automatic validation by angular
+      // Assert - form is valid
       expect(component.form.valid).toBeTruthy();
     });
   });
 
   // Test 2: Méthode submit()
   describe('submit method', () => {
-    it('should call authService.login with form values', () => {
-      // Arrange
-    // Remplace méthode cible par un mock
+    it('authService.login should have been called with form values', () => {
+    // Arrange - mock la réponse du login
       jest.spyOn(authService, 'login').mockReturnValue(of({ token: 'fake-token', type: 'Bearer', id: 1, username: 'testuser', firstName: 'Test', lastName: 'User', admin: false }));
       component.form.setValue({
         email: 'test@test.com',
         password: 'test-password!99'
       });
-      
       // Act
       component.submit();
-      
       // Assert
       expect(authService.login).toHaveBeenCalledWith({
         email: 'test@test.com',
@@ -162,10 +151,8 @@ describe('LoginComponent', () => {
         email: 'test@test.com',
         password: 'test-password!99'
       });
-      
       // Act
       component.submit();
-      
       // Assert
       expect(component.onError).toBeTruthy();
     });
@@ -174,20 +161,16 @@ describe('LoginComponent', () => {
   // Test 3: Interaction avec les services
   describe('service interactions', () => {
     it('should call sessionService.logIn and navigate to /sessions on successful login', () => {  
-      // Arrange
-      const sessionInfo = { token: 'fake-token', type: 'Bearer', id: 1, username: 'testuser', firstName: 'Test', lastName: 'User', admin: false };
-      jest.spyOn(authService, 'login').mockReturnValue(of(sessionInfo));
-      jest.spyOn(sessionService, 'logIn');
-      
+    // Arrange
+    const sessionInfo = { token: 'fake-token', type: 'Bearer', id: 1, username: 'testuser', firstName: 'Test', lastName: 'User', admin: false };
+    jest.spyOn(authService, 'login').mockReturnValue(of(sessionInfo));
       component.form.setValue({
         email: 'test@test.com',
         password: 'test-password!99'
       });
-      
       // Act
       component.submit();
-      
-      // Assert
+      // Assert - session est bien call avec la bonne value
       expect(sessionService.logIn).toHaveBeenCalledWith(sessionInfo);
       expect(router.navigate).toHaveBeenCalledWith(['/sessions']);
     });
@@ -198,10 +181,8 @@ describe('LoginComponent', () => {
     it('should toggle password visibility when hide property changes', () => {
       // Arrange & Assert initial state
       expect(component.hide).toBeTruthy();
-      
-      // Act
+      // Act - toogle hide
       component.hide = !component.hide;
-      
       // Assert
       expect(component.hide).toBeFalsy();
     });
