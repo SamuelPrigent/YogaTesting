@@ -1,4 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -33,7 +34,8 @@ class MockAuthService {
   login = jest.fn();
 }
 
-describe('LoginComponent', () => {
+// ========= Test unitaire =========
+describe('LoginComponent - Tests unitaires', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let authService: AuthService;
@@ -184,6 +186,152 @@ describe('LoginComponent', () => {
       component.hide = !component.hide;
       // Assert
       expect(component.hide).toBeFalsy();
+    });
+  });
+});
+
+// ========= Test d'intégration ==========
+
+describe("LoginComponent - Tests d'intégration", () => {
+  let component: LoginComponent;
+  let fixture: ComponentFixture<LoginComponent>;
+  
+  // Services réels pour l'intégration
+  let sessionService: SessionService;
+  let authService: AuthService;
+  
+  // Mocks (uniquement pour le Router)
+  let httpMock: HttpTestingController;
+  let routerMock: any;
+
+  beforeEach(async () => {
+    // initialise router mock
+    routerMock = {
+      navigate: jest.fn().mockReturnValue(Promise.resolve(true))
+    };
+
+    await TestBed.configureTestingModule({
+      declarations: [LoginComponent],
+      providers: [
+        // On utilise le vrai SessionService
+        { provide: Router, useValue: routerMock }
+      ],
+      imports: [
+        BrowserAnimationsModule,
+        HttpClientTestingModule, // Utiliser HttpClientTestingModule au lieu de HttpClientModule
+        MatCardModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(LoginComponent);
+    component = fixture.componentInstance;
+    httpMock = TestBed.inject(HttpTestingController);
+    sessionService = TestBed.inject(SessionService);
+    authService = TestBed.inject(AuthService); // Injection explicite du vrai AuthService
+    
+    // Add spyOn sur SessionService (non mocké)
+    // Need mockImplementation pour que les espions fonctionnent correctement
+    jest.spyOn(sessionService, 'logIn').mockImplementation((user) => {
+      sessionService.sessionInformation = user;
+      sessionService.isLogged = true;
+    });
+    jest.spyOn(sessionService, 'logOut').mockImplementation(() => {
+      sessionService.sessionInformation = undefined;
+      sessionService.isLogged = false;
+    });
+  });
+
+  afterEach(() => {
+    httpMock.verify(); // Check si pas de requêtes HTTP en attente
+    jest.clearAllMocks(); // Réinitialise les spyOn
+  });
+
+  // Test principal: Méthode submit() avec HttpTestingController et services réels
+  describe('submit method with HTTP mock', () => {
+    it('should send login request to API and handle successful response', () => {
+      // Initialiser le composant
+      fixture.detectChanges();
+      
+      // Arrange - préparer les données de formulaire
+      component.form.setValue({
+        email: 'test@test.com',
+        password: 'test-password!99'
+      });
+
+      // Espionner la méthode login de l'AuthService réel pour vérifier son appel
+      const authServiceSpy = jest.spyOn(authService, 'login');
+
+      // Act - soumettre le formulaire
+      component.submit();
+      
+      // Vérifier que le vrai AuthService a été appelé avec les bons paramètres
+      expect(authServiceSpy).toHaveBeenCalledWith({
+        email: 'test@test.com',
+        password: 'test-password!99'
+      });
+
+      // Intercepter et vérifier la requête HTTP générée par le vrai AuthService
+      const req = httpMock.expectOne('api/auth/login');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        email: 'test@test.com',
+        password: 'test-password!99'
+      });
+
+      // Simuler une réponse positive du serveur
+      const mockResponse = { 
+        token: 'fake-token', 
+        type: 'Bearer', 
+        id: 1, 
+        username: 'testuser', 
+        firstName: 'Test', 
+        lastName: 'User', 
+        admin: false 
+      };
+      req.flush(mockResponse);
+
+      // Assert - vérifier les interactions avec les services
+      expect(sessionService.logIn).toHaveBeenCalledWith(mockResponse);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/sessions']);
+      expect(component.onError).toBeFalsy();
+    });
+
+    it('should handle API error correctly', () => {
+      // Initialiser le composant
+      fixture.detectChanges();
+      
+      // Arrange - préparer les données de formulaire
+      component.form.setValue({
+        email: 'test@test.com',
+        password: 'wrong-password'
+      });
+      
+      // Espionner la méthode login de l'AuthService réel
+      const authServiceSpy = jest.spyOn(authService, 'login');
+
+      // Act - soumettre le formulaire
+      component.submit();
+      
+      // Vérifier que le vrai AuthService a été appelé
+      expect(authServiceSpy).toHaveBeenCalled();
+
+      // Intercepter et vérifier la requête HTTP générée par le vrai AuthService
+      const req = httpMock.expectOne('api/auth/login');
+      expect(req.request.method).toBe('POST');
+
+      // Simuler une erreur du serveur
+      req.error(new ProgressEvent('Network error'));
+
+      // Assert - vérifier que onError est défini sur true
+      expect(component.onError).toBeTruthy();
+      // La session ne devrait pas être mise à jour
+      expect(sessionService.logIn).not.toHaveBeenCalled();
+      // Pas de navigation
+      expect(routerMock.navigate).not.toHaveBeenCalled();
     });
   });
 });
