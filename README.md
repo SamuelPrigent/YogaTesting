@@ -18,17 +18,9 @@ Un projet mono-repo comportant **frontend** et **backend**.
 
 ### Test Frontend : unitaire et d'intégration
 
-Launching test (without coverage) :
+Launching test with coverage :
 
 > npm run test 
-
-or to watch change :
-
-> npm run test:watch
-
-Launching test with coverage : 
-
-> npx jest --coverage
 
 ### Test Backend : unitaire et d'intégration
 
