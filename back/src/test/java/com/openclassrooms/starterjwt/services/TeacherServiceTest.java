@@ -32,7 +32,7 @@ public class TeacherServiceTest {
     void setUp() {
         // Configuration d'un objet teacher pour les tests
         teacher = new Teacher();
-        teacher.setId(2L); // ID 2L pour le teacher, différent de l'ID 1L utilisé pour user et 3L pour session
+        teacher.setId(2L); 
         teacher.setFirstName("Jean");
         teacher.setLastName("Dupont");
         teacher.setCreatedAt(LocalDateTime.now());
@@ -45,10 +45,8 @@ public class TeacherServiceTest {
         // Arrange
         List<Teacher> teachers = Arrays.asList(teacher);
         when(teacherRepository.findAll()).thenReturn(teachers);
-        
         // Act
         List<Teacher> result = teacherService.findAll();
-        
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -64,10 +62,8 @@ public class TeacherServiceTest {
         // Arrange
         // Mock d'une réponse avec un teacher valide
         when(teacherRepository.findById(2L)).thenReturn(Optional.of(teacher));
-        
         // Act
         Teacher result = teacherService.findById(2L);
-        
         // Assert
         assertNotNull(result);
         assertEquals(teacher.getId(), result.getId());
@@ -82,10 +78,8 @@ public class TeacherServiceTest {
         // Arrange
         // Mock d'une réponse où aucun teacher n'est trouvé
         when(teacherRepository.findById(999L)).thenReturn(Optional.empty());
-        
         // Act
         Teacher result = teacherService.findById(999L);
-        
         // Assert
         assertNull(result);
         verify(teacherRepository, times(1)).findById(999L);
