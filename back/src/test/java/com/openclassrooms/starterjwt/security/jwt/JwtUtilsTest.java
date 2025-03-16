@@ -137,11 +137,20 @@ class JwtUtilsTest {
                 
                 // Préparation
                 String token = jwtUtils.generateJwtToken(authentication);
-                // Modification du dernier caractère pour invalider la signature
-                String tamperedToken = token.substring(0, token.length() - 1) + (token.charAt(token.length() - 1) == 'A' ? 'B' : 'A');
                 
-                // Exécution et vérification
-                assertFalse(jwtUtils.validateJwtToken(tamperedToken));
+                // Note: On modifie carrément le payload pour être sûr que la signature ne puisse plus correspondre
+                // Format JWT: header.payload.signature
+                String[] parts = token.split("\\.");
+                if (parts.length >= 3) { // Vérification que le token a bien les 3 parties attendues
+                    // Modification du payload (partie centrale) pour invalider la signature
+                    parts[1] = parts[1].substring(0, parts[1].length() - 5) + "XXXXX";
+                    String tamperedToken = parts[0] + "." + parts[1] + "." + parts[2];
+                    
+                    // Exécution et vérification : le token falsifié doit être rejeté
+                    assertFalse(jwtUtils.validateJwtToken(tamperedToken));
+                } else {
+                    fail("Le token JWT généré n'a pas le format attendu (header.payload.signature)");
+                }
             }
             
             @Test
