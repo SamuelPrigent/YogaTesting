@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -229,6 +230,7 @@ public class AuthControllerTest {
     @SpringBootTest
     @AutoConfigureMockMvc(addFilters = false) // Désactive les filtres de sécurité pour les tests d'intégration
     @Transactional
+    @WithMockUser(username = "test@example.com", password = "password")
     @DisplayName("Tests d'intégration pour AuthController")
     class IntegrationTests {
         @Autowired
@@ -300,7 +302,6 @@ public class AuthControllerTest {
         }
         
         @Test
-        @org.junit.jupiter.api.Disabled("Test désactivé temporairement - problème de configuration de sécurité à résoudre")
         @DisplayName("login - Doit retourner un JWT lorsque les informations d'identification sont correctes")
         void login_ShouldReturnJwt_WhenCredentialsAreCorrect() throws Exception {
             // Exécution et vérification
@@ -315,7 +316,6 @@ public class AuthControllerTest {
         }
         
         @Test
-        @org.junit.jupiter.api.Disabled("Test désactivé temporairement - problème de configuration de sécurité à résoudre")
         @DisplayName("login - Doit retourner 401 lorsque les informations d'identification sont incorrectes")
         void login_ShouldReturn401_WhenCredentialsAreIncorrect() throws Exception {
             // Préparation d'une requête avec mot de passe incorrect
@@ -331,8 +331,6 @@ public class AuthControllerTest {
         }
         
         @Test
-        // ???
-        @org.junit.jupiter.api.Disabled("Test désactivé temporairement - problème de configuration de sécurité à résoudre")
         @DisplayName("register - Doit créer un nouvel utilisateur lorsque l'email n'est pas déjà utilisé")
         void register_ShouldCreateNewUser_WhenEmailIsNotInUse() throws Exception {
             // S'assurer que l'utilisateur n'existe pas avant le test
@@ -355,7 +353,6 @@ public class AuthControllerTest {
         }
         
         @Test
-        @org.junit.jupiter.api.Disabled("Test désactivé temporairement - problème de configuration de sécurité à résoudre")
         @DisplayName("register - Doit retourner une erreur lorsque l'email est déjà utilisé")
         void register_ShouldReturnError_WhenEmailIsAlreadyInUse() throws Exception {
             // Utiliser l'email d'un utilisateur existant
