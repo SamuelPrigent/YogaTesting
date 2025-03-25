@@ -17,3 +17,12 @@
 // import './commands';
 
 import '@cypress/code-coverage/support';
+
+// Interception globale pour rediriger les requêtes API vers le bon serveur
+beforeEach(() => {
+  cy.intercept('/api/**', (req) => {
+    req.url = req.url.replace('http://localhost:4200/api', 'http://localhost:8080/api');
+    console.log(`Requête API redirigée: ${req.method} ${req.url}`);
+    req.continue();
+  }).as('apiRedirect');
+});
