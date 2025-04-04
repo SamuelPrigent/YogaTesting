@@ -22,6 +22,12 @@ Launching test with coverage :
 
 > npm run test 
 
+Check coverage page : 
+
+```bash
+front/coverage/jest/lcov-report/index.html
+```
+
 ### Test Backend : unitaire et d'intégration
 
 Launch & generate the jacoco code coverage:
@@ -51,4 +57,3 @@ Le rapport de couverture E2E est disponible à l'emplacement suivant :
 ```bash
 front/coverage/lcov-report/index.html
 ```
-Thought Process
