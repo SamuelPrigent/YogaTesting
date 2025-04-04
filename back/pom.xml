@@ -179,7 +179,8 @@
                             <exclude>**/dto/**</exclude>
                             <exclude>**/models/**</exclude>
                             <exclude>**/request/**</exclude>
-                            <exclude>**/mapper/*MapperImpl.class</exclude>
+                            <!-- Exclure uniquement de la couverture de test, pas de la compilation -->
+                            <exclude>**/mapper/**/*MapperImpl.*</exclude>
                         </excludes>
                         <rules>
                             <rule>
