@@ -14,11 +14,11 @@
 // ***********************************************************
 
 // When a command from ./commands is ready to use, import with `import './commands'` syntax
-// import './commands';
-
+import './commands';
 import '@cypress/code-coverage/support';
 
-// Interception globale pour rediriger les requêtes API vers le bon serveur
+// Permet à Cypress de suivre le même comportement que le proxy d'angular 
+// pour rediriger les requests à destination du back au bon endroit
 beforeEach(() => {
   cy.intercept('/api/**', (req) => {
     req.url = req.url.replace('http://localhost:4200/api', 'http://localhost:8080/api');
