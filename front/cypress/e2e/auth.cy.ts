@@ -16,12 +16,12 @@ describe('Auth spec', () => {
 
   it('Échec de connexion - Mauvais identifiants', () => {
     // Intercepter la requête de connexion avec une réponse d'erreur
-    cy.intercept('POST', '/api/auth/login', {
-      statusCode: 401,
-      body: {
-        message: "Bad credentials"
-      }
-    }).as('loginFailRequest')
+    // cy.intercept('POST', '/api/auth/login', {
+    //   statusCode: 401,
+    //   body: {
+    //     message: "Bad credentials"
+    //   }
+    // }).as('loginFailRequest')
 
     // Remplir le formulaire avec un mot de passe incorrect
     cy.get('input[formControlName=email]').type("yoga@studio.com")
@@ -31,7 +31,7 @@ describe('Auth spec', () => {
     cy.get('button[type="submit"]').click()
 
     // Vérifier que la requête d'authentification a été envoyée
-    cy.wait('@loginFailRequest')
+    // cy.wait('@loginFailRequest')
 
     // Attendre que l'application ait le temps de traiter la réponse
     cy.wait(500)

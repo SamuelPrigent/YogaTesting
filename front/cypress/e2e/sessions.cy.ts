@@ -51,9 +51,7 @@ describe('Sessions spec', () => {
 
   // Test des permissions admin
   it('Affichage des boutons pour un utilisateur admin', () => {
-    // L'utilisateur admin est déjà connecté grâce au beforeEach
-    // Pas besoin de se reconnecter
-    
+    // L'utilisateur admin est déjà connecté grâce au beforeEach    
     // Vérifier que le bouton Create est visible pour un admin
     cy.contains('button', 'Create').should('be.visible')
     
