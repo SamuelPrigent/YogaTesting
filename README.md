@@ -28,17 +28,27 @@ Launch & generate the jacoco code coverage:
 
 > mvn clean test
 
-### Test E2E
+### Test E2E (End-to-End)
 
-Launching e2e test:
+Lancement des tests E2E en mode interactif :
 
-> npm run e2e
+```bash
+npm run e2e
+```
 
-Generate coverage report (you should launch e2e test before):
+Génération du rapport de couverture E2E (processus en deux étapes) :
 
-> npm run e2e:coverage
+```bash
+# Étape 1 : Exécution des tests en mode CI et collecte des données brutes de couverture
+npm run e2e:ci
 
-Report is available here:
+# Étape 2 : Génération du rapport HTML à partir des données collectées
+npm run e2e:coverage
+```
 
-> front/coverage/lcov-report/index.html
+Le rapport de couverture E2E est disponible à l'emplacement suivant :
 
+```bash
+front/coverage/lcov-report/index.html
+```
+Thought Process
