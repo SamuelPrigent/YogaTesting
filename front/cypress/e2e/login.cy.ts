@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-describe('Auth spec', () => {
+describe('Login & Account information', () => {
   beforeEach(() => {
     // Visiter la page de connexion avant chaque test
     cy.visit('/login')
@@ -16,22 +16,12 @@ describe('Auth spec', () => {
 
   it('Échec de connexion - Mauvais identifiants', () => {
     // Intercepter la requête de connexion avec une réponse d'erreur
-    // cy.intercept('POST', '/api/auth/login', {
-    //   statusCode: 401,
-    //   body: {
-    //     message: "Bad credentials"
-    //   }
-    // }).as('loginFailRequest')
-
     // Remplir le formulaire avec un mot de passe incorrect
     cy.get('input[formControlName=email]').type("yoga@studio.com")
     cy.get('input[formControlName=password]').type("mauvais_mot_de_passe")
 
     // Soumettre le formulaire
     cy.get('button[type="submit"]').click()
-
-    // Vérifier que la requête d'authentification a été envoyée
-    // cy.wait('@loginFailRequest')
 
     // Attendre que l'application ait le temps de traiter la réponse
     cy.wait(500)
