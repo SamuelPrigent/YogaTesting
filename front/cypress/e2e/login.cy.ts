@@ -7,15 +7,42 @@ describe('Login & Account information', () => {
   })
   
   it('Login successfull', () => {
+    // Intercepter la requête de login avec une réponse de succès
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 200,
+      body: {
+        token: 'fake-jwt-token',
+        id: 1,
+        type: 'admin',
+        username: 'Admin Yoga',
+        firstName: 'Admin',
+        lastName: 'Yoga',
+        admin: true
+      }
+    }).as('loginSuccess')
+    
+    // Intercepter la redirection vers les sessions
+    cy.intercept('GET', '/api/session', {
+      statusCode: 200,
+      body: []
+    }).as('getSessions')
 
     cy.get('input[formControlName=email]').type("yoga@studio.com")
     cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
+    
+    // Attendre que la requête interceptée soit terminée
+    cy.wait('@loginSuccess')
 
     cy.url().should('include', '/sessions')
   })
 
   it('Échec de connexion - Mauvais identifiants', () => {
-    // Intercepter la requête de connexion avec une réponse d'erreur
+    // Intercepter la requête de connexion avec une réponse d'erreur 401
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 401,
+      body: { message: 'Bad credentials' }
+    }).as('loginFailed')
+    
     // Remplir le formulaire avec un mot de passe incorrect
     cy.get('input[formControlName=email]').type("yoga@studio.com")
     cy.get('input[formControlName=password]').type("mauvais_mot_de_passe")
@@ -23,13 +50,38 @@ describe('Login & Account information', () => {
     // Soumettre le formulaire
     cy.get('button[type="submit"]').click()
 
-    // Attendre que l'application ait le temps de traiter la réponse
-    cy.wait(500)
+    // Attendre que la requête interceptée soit terminée
+    cy.wait('@loginFailed')
     
     // Vérifier qu'un message d'erreur est affiché
     cy.get('p.error').should('be.visible')
     cy.get('p.error').should('contain', 'An error occurred')
 
+    // Vérifier qu'on reste sur la page de connexion
+    cy.url().should('include', '/login')
+  })
+  
+  it('Échec de connexion - Erreur serveur 500', () => {
+    // Intercepter la requête de login et simuler une erreur 500
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 500,
+      body: { message: 'Internal Server Error' }
+    }).as('loginServerError')
+    
+    // Remplir le formulaire avec des identifiants valides
+    cy.get('input[formControlName=email]').type("yoga@studio.com")
+    cy.get('input[formControlName=password]').type("test!1234")
+    
+    // Soumettre le formulaire
+    cy.get('button[type="submit"]').click()
+    
+    // Attendre que la requête interceptée soit terminée
+    cy.wait('@loginServerError')
+    
+    // Vérifier qu'un message d'erreur est affiché
+    cy.get('p.error').should('be.visible')
+    cy.get('p.error').should('contain', 'An error occurred')
+    
     // Vérifier qu'on reste sur la page de connexion
     cy.url().should('include', '/login')
   })
@@ -56,8 +108,26 @@ describe('Login & Account information', () => {
 
   it('Déconnexion réussie', () => {
     // Intercepter les requêtes importantes
-    cy.intercept('POST', '/api/auth/login').as('loginRequest')
-    cy.intercept('GET', '/api/session').as('sessionsRequest')
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 200,
+      body: {
+        token: 'fake-jwt-token',
+        id: 1,
+        type: 'admin',
+        username: 'Admin Yoga',
+        firstName: 'Admin',
+        lastName: 'Yoga',
+        admin: true
+      }
+    }).as('loginRequest')
+    
+    cy.intercept('GET', '/api/session', {
+      statusCode: 200,
+      body: [
+        { id: 1, name: 'Yoga Débutant', description: 'Cours pour débutants', date: '2025-06-01', teacher_id: 1 },
+        { id: 2, name: 'Yoga Intermédiaire', description: 'Cours intermédiaire', date: '2025-06-15', teacher_id: 1 }
+      ]
+    }).as('sessionsRequest')
     
     // Se connecter d'abord
     cy.get('input[formControlName=email]').type("yoga@studio.com")
@@ -78,6 +148,14 @@ describe('Login & Account information', () => {
     // Vérifier qu'on est redirigé vers la page d'accueil après déconnexion
     cy.url().should('eq', 'http://localhost:4200/')
     
+    // Intercepter la tentative d'accès aux sessions pour simuler la redirection de sécurité
+    cy.intercept('GET', '/api/session', req => {
+      req.reply({
+        statusCode: 401,
+        body: { message: 'Unauthorized' }
+      })
+    }).as('unauthorizedRequest')
+    
     // Vérifier qu'on n'est plus authentifié en essayant d'accéder à la page protégée des sessions
     cy.visit('/sessions')
     cy.url().should('include', '/login') // On est redirigé vers login
@@ -85,8 +163,38 @@ describe('Login & Account information', () => {
   
   it('Affichage des informations utilisateur dans la page Account', () => {
     // Intercepter les requêtes importantes
-    cy.intercept('POST', '/api/auth/login').as('loginRequest')
-    cy.intercept('GET', '/api/user/*').as('getUserDetails')
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 200,
+      body: {
+        token: 'fake-jwt-token',
+        id: 1,
+        type: 'admin',
+        username: 'Admin Yoga',
+        firstName: 'Admin',
+        lastName: 'Yoga',
+        admin: true
+      }
+    }).as('loginRequest')
+    
+    // Intercepter les sessions
+    cy.intercept('GET', '/api/session', {
+      statusCode: 200,
+      body: []
+    })
+    
+    // Intercepter les détails utilisateur
+    cy.intercept('GET', '/api/user/*', {
+      statusCode: 200,
+      body: {
+        id: 1,
+        email: 'yoga@studio.com',
+        firstName: 'Admin',
+        lastName: 'Yoga',
+        admin: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z'
+      }
+    }).as('getUserDetails')
     
     // Se connecter avec un compte admin
     cy.get('input[formControlName=email]').type("yoga@studio.com")
