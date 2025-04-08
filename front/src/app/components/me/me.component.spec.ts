@@ -1,4 +1,7 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,7 +29,7 @@ class MockMatSnackBar {
 class MockSessionService {
   sessionInformation = {
     admin: true,
-    id: 1
+    id: 1,
   };
   logOut = jest.fn();
 }
@@ -51,7 +54,9 @@ describe('MeComponent - Tests unitaires', () => {
 
   beforeEach(async () => {
     // Spy sur window.history.back
-    historyBackSpy = jest.spyOn(window.history, 'back').mockImplementation(() => {});
+    historyBackSpy = jest
+      .spyOn(window.history, 'back')
+      .mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
       declarations: [MeComponent],
@@ -61,13 +66,13 @@ describe('MeComponent - Tests unitaires', () => {
         MatCardModule,
         MatFormFieldModule,
         MatIconModule,
-        MatInputModule
+        MatInputModule,
       ],
       providers: [
         { provide: UserService, useClass: MockUserService },
         { provide: SessionService, useClass: MockSessionService },
         { provide: MatSnackBar, useClass: MockMatSnackBar },
-        { provide: Router, useClass: MockRouter }
+        { provide: Router, useClass: MockRouter },
       ],
     }).compileComponents();
 
@@ -88,7 +93,7 @@ describe('MeComponent - Tests unitaires', () => {
     // Réinitialiser avant le test pour éviter les appels d'autres tests
     (userService as any).getById.mockReset();
     (userService as any).getById.mockReturnValue(of({}));
-    
+
     fixture.detectChanges(); // Déclenche ngOnInit
     expect(component).toBeTruthy();
   });
@@ -96,7 +101,15 @@ describe('MeComponent - Tests unitaires', () => {
   describe('ngOnInit', () => {
     it('should call userService.getById with the current user id', () => {
       // Arrange
-      const mockUser: User = { id: 1, email: 'test@test.com', firstName: 'Test', lastName: 'User', admin: false, password: 'password123', createdAt: new Date() };
+      const mockUser: User = {
+        id: 1,
+        email: 'test@test.com',
+        firstName: 'Test',
+        lastName: 'User',
+        admin: false,
+        password: 'password123',
+        createdAt: new Date(),
+      };
       (userService as any).getById.mockReturnValue(of(mockUser));
       // Act
       fixture.detectChanges(); // Déclenche ngOnInit
@@ -131,14 +144,20 @@ describe('MeComponent - Tests unitaires', () => {
       // Act
       component.delete();
       // Assert
-      expect(snackBar.open).toHaveBeenCalledWith("Your account has been deleted !", 'Close', { duration: 3000 });
+      expect(snackBar.open).toHaveBeenCalledWith(
+        'Your account has been deleted !',
+        'Close',
+        { duration: 3000 }
+      );
       expect(sessionService.logOut).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/']);
     });
 
     it('should not log out or navigate if deletion fails', () => {
       // Arrange
-      (userService as any).delete.mockReturnValue(throwError(() => new Error('Failed to delete')));
+      (userService as any).delete.mockReturnValue(
+        throwError(() => new Error('Failed to delete'))
+      );
       // Act
       component.delete();
       // Assert
@@ -167,23 +186,25 @@ describe("MeComponent - Tests d'intégration", () => {
 
   beforeEach(async () => {
     // Spy sur window.history.back
-    historyBackSpy = jest.spyOn(window.history, 'back').mockImplementation(() => {});
+    historyBackSpy = jest
+      .spyOn(window.history, 'back')
+      .mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
       declarations: [MeComponent],
       providers: [
         { provide: SessionService, useClass: MockSessionService },
         { provide: MatSnackBar, useClass: MockMatSnackBar },
-        { provide: Router, useClass: MockRouter }
+        { provide: Router, useClass: MockRouter },
       ],
       imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
-        MatCardModule, 
+        MatCardModule,
         MatFormFieldModule,
         MatIconModule,
-        MatInputModule
-      ]
+        MatInputModule,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MeComponent);
@@ -204,14 +225,14 @@ describe("MeComponent - Tests d'intégration", () => {
   describe('ngOnInit', () => {
     it('should fetch user data on initialization', () => {
       // Arrange - Définir l'utilisateur mock
-      const mockUser: User = { 
-        id: 1, 
-        email: 'test@test.com', 
-        firstName: 'Test', 
-        lastName: 'User', 
+      const mockUser: User = {
+        id: 1,
+        email: 'test@test.com',
+        firstName: 'Test',
+        lastName: 'User',
         admin: false,
         password: 'password123',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       // Act - Déclencher ngOnInit
       fixture.detectChanges();
@@ -230,13 +251,13 @@ describe("MeComponent - Tests d'intégration", () => {
       // Arrange - S'assurer que le composant est initialisé
       fixture.detectChanges();
       httpMock.expectOne('api/user/1').flush({
-        id: 1, 
-        email: 'test@test.com', 
-        firstName: 'Test', 
-        lastName: 'User', 
+        id: 1,
+        email: 'test@test.com',
+        firstName: 'Test',
+        lastName: 'User',
         admin: false,
         password: 'password123',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       });
       // Act - Appeler la méthode delete
       component.delete();
@@ -246,7 +267,11 @@ describe("MeComponent - Tests d'intégration", () => {
       // Simuler une réponse positive du serveur
       req.flush(null);
       // Assert - Vérifier les interactions après réponse
-      expect(snackBar.open).toHaveBeenCalledWith("Your account has been deleted !", 'Close', { duration: 3000 });
+      expect(snackBar.open).toHaveBeenCalledWith(
+        'Your account has been deleted !',
+        'Close',
+        { duration: 3000 }
+      );
       expect(sessionService.logOut).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/']);
     });
@@ -255,16 +280,18 @@ describe("MeComponent - Tests d'intégration", () => {
       // Arrange - S'assurer que le composant est initialisé
       fixture.detectChanges();
       httpMock.expectOne('api/user/1').flush({
-        id: 1, 
-        email: 'test@test.com', 
-        firstName: 'Test', 
-        lastName: 'User', 
+        id: 1,
+        email: 'test@test.com',
+        firstName: 'Test',
+        lastName: 'User',
         admin: false,
         password: 'password123',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       });
       // Espionner console.error
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       // Act - Appeler la méthode delete
       component.delete();
       // Intercepter la requête DELETE

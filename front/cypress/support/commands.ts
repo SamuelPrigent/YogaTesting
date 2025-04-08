@@ -34,11 +34,67 @@ declare global {
     }
   }
   
+  // Données mockées pour les sessions
+  const mockSessions = [
+    { 
+      id: 413, 
+      name: 'Yoga du matin', 
+      description: 'Réveillez-vous en douceur', 
+      date: '2025-06-10T00:00:00.000+00:00', 
+      teacher_id: 1,
+      users: [],
+      createdAt: '2025-04-05T00:48:12',
+      updatedAt: '2025-04-05T00:48:12'
+    },
+    { 
+      id: 414, 
+      name: 'Pilates intermédiaire', 
+      description: 'Renforcement musculaire', 
+      date: '2025-06-20T00:00:00.000+00:00', 
+      teacher_id: 1,
+      users: [], 
+      createdAt: '2025-04-05T00:48:50',
+      updatedAt: '2025-04-05T00:48:50'
+    }
+  ];
+  
+  const teachers = [
+    { id: 1, firstName: 'Margot', lastName: 'DELAHAYE', createdAt: '2023-01-01', updatedAt: '2023-01-01' }
+  ];
+  
   // Commande pour se connecter en tant qu'administrateur
   Cypress.Commands.add('loginAsAdmin', () => {
-    // Intercepter les requêtes pour pouvoir vérifier qu'elles sont bien terminées
-    cy.intercept('POST', '/api/auth/login').as('loginRequest')
-    cy.intercept('GET', '/api/session').as('sessionsRequest')
+    // Intercepter le login admin avec une réponse simulée
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 200,
+      body: {
+        token: 'faketoken',
+        type: 'Bearer',
+        id: 898,
+        username: 'yoga@studio.com',
+        firstName: 'Admin',
+        lastName: 'Admin',
+        admin: true
+      }
+    }).as('loginRequest')
+    
+    // Intercepter la liste des sessions
+    cy.intercept('GET', '/api/session', {
+      statusCode: 200,
+      body: mockSessions
+    }).as('sessionsRequest')
+    
+    // Intercepter la liste des enseignants
+    cy.intercept('GET', '/api/teacher', {
+      statusCode: 200,
+      body: teachers
+    }).as('getTeachers')
+    
+    // Intercepter les requêtes pour les détails d'un enseignant spécifique
+    cy.intercept('GET', '/api/teacher/*', {
+      statusCode: 200,
+      body: teachers[0]
+    }).as('getTeacherDetails')
     
     // Visiter la page de login
     cy.visit('/login')
@@ -63,20 +119,53 @@ declare global {
   
   // Commande pour se connecter en tant qu'utilisateur standard
   Cypress.Commands.add('loginAsUser', () => {
-    // S'assurer que l'utilisateur non-admin existe
-    cy.intercept('POST', '/api/auth/register').as('registerNonAdmin')
-    cy.visit('/register')
-    cy.get('input[formControlName=firstName]').type("User")
-    cy.get('input[formControlName=lastName]').type("Test")
-    cy.get('input[formControlName=email]').type("user@studio.com")
-    cy.get('input[formControlName=password]').type("test!1234")
-    cy.get('button[type="submit"]').click()
+    // Simuler l'enregistrement réussi
+    cy.intercept('POST', '/api/auth/register', {
+      statusCode: 200,
+      body: {
+        id: 899,
+        email: 'user@studio.com',
+        firstName: 'User',
+        lastName: 'Test',
+        admin: false
+      }
+    }).as('registerNonAdmin')
     
-    // Intercepter les requêtes pour le login et les sessions
-    cy.intercept('POST', '/api/auth/login').as('loginNonAdminRequest')
-    cy.intercept('GET', '/api/session').as('sessionsNonAdmin')
+    // Simuler le login non-admin
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 200,
+      body: {
+        token: 'fakeusertoken',
+        type: 'Bearer',
+        id: 899,
+        username: 'user@studio.com',
+        firstName: 'User',
+        lastName: 'Test',
+        admin: false
+      }
+    }).as('loginNonAdminRequest')
     
-    // Se connecter avec l'utilisateur standard
+    // Simuler la liste des sessions
+    cy.intercept('GET', '/api/session', {
+      statusCode: 200,
+      body: mockSessions
+    }).as('sessionsNonAdmin')
+    
+    // Intercepter les requêtes pour les informations utilisateur
+    cy.intercept('GET', '/api/user/*', {
+      statusCode: 200,
+      body: {
+        id: 899,
+        email: 'user@studio.com',
+        firstName: 'User',
+        lastName: 'Test',
+        admin: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    }).as('getUserDetails')
+    
+    // Au lieu de créer réellement l'utilisateur, on simule directement le login
     cy.visit('/login')
     cy.get('input[formControlName=email]').type("user@studio.com")
     cy.get('input[formControlName=password]').type("test!1234")

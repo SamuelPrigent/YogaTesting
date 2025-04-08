@@ -1,0 +1,45 @@
+{
+  "admin": {
+    "username": "yoga@studio.com",
+    "password": "test!1234",
+    "token": "fake-jwt-token",
+    "id": 1,
+    "type": "Bearer",
+    "firstName": "Admin",
+    "lastName": "Yoga",
+    "admin": true,
+    "email": "yoga@studio.com",
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-01T00:00:00Z"
+  },
+  "user": {
+    "username": "user@studio.com",
+    "password": "test!1234",
+    "token": "fake-user-token",
+    "id": 2,
+    "type": "Bearer",
+    "firstName": "User",
+    "lastName": "Test",
+    "admin": false,
+    "email": "user@studio.com",
+    "createdAt": "2023-02-01T00:00:00Z",
+    "updatedAt": "2023-02-01T00:00:00Z"
+  },
+  "sessions": [
+    {
+      "id": 1,
+      "name": "Yoga Débutant",
+      "description": "Cours pour débutants",
+      "date": "2025-06-01",
+      "teacher_id": 1
+    },
+    {
+      "id": 2,
+      "name": "Yoga Intermédiaire",
+      "description": "Cours intermédiaire",
+      "date": "2025-06-15",
+      "teacher_id": 1
+    }
+  ],
+  "emptyResponse": []
+}

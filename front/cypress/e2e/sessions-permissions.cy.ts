@@ -1,7 +1,75 @@
 /// <reference types="cypress" />
 
 describe('Sessions Permissions', () => {
+    // Données mockées pour les tests
+    const mockSessions = [
+      { 
+        id: 413, 
+        name: 'Yoga du matin', 
+        description: 'Réveillez-vous en douceur', 
+        date: '2025-06-10T00:00:00.000+00:00', 
+        teacher_id: 1,
+        users: [],
+        createdAt: '2025-04-05T00:48:12',
+        updatedAt: '2025-04-05T00:48:12'
+      },
+      { 
+        id: 414, 
+        name: 'Pilates intermédiaire', 
+        description: 'Renforcement musculaire', 
+        date: '2025-06-20T00:00:00.000+00:00', 
+        teacher_id: 1,
+        users: [], 
+        createdAt: '2025-04-05T00:48:50',
+        updatedAt: '2025-04-05T00:48:50'
+      }
+    ];
+    
+    const teachers = [
+      { id: 1, firstName: 'Margot', lastName: 'DELAHAYE', createdAt: '2023-01-01', updatedAt: '2023-01-01' }
+    ];
     it('Éléments visibles pour un administrateur', () => {
+      // Intercepter le login admin avec une réponse simulée
+      cy.intercept('POST', '/api/auth/login', {
+        statusCode: 200,
+        body: {
+          token: 'faketoken',
+          type: 'Bearer',
+          id: 898,
+          username: 'yoga@studio.com',
+          firstName: 'Admin',
+          lastName: 'Admin',
+          admin: true
+        }
+      }).as('loginAdminRequest')
+      
+      // Intercepter la liste des sessions
+      cy.intercept('GET', '/api/session', {
+        statusCode: 200,
+        body: mockSessions
+      }).as('getSessions')
+      
+      // Intercepter la requête pour les détails d'une session
+      cy.intercept('GET', '/api/session/*', {
+        statusCode: 200,
+        body: {
+          ...mockSessions[0],
+          teacher: { id: 1, firstName: 'Margot', lastName: 'DELAHAYE' }
+        }
+      }).as('getSessionDetail')
+      
+      // Intercepter la liste des enseignants
+      cy.intercept('GET', '/api/teacher', {
+        statusCode: 200,
+        body: teachers
+      }).as('getTeachers')
+      
+      // Intercepter les requêtes pour les détails d'un enseignant spécifique
+      cy.intercept('GET', '/api/teacher/*', {
+        statusCode: 200,
+        body: teachers[0]
+      }).as('getTeacherDetails')
+      
       // Se connecter en tant qu'admin
       cy.loginAsAdmin()
       
@@ -29,6 +97,49 @@ describe('Sessions Permissions', () => {
     })
     
     it('Éléments visibles pour un utilisateur standard', () => {
+      // Intercepter le login en tant qu'utilisateur standard
+      cy.intercept('POST', '/api/auth/login', {
+        statusCode: 200,
+        body: {
+          token: 'fakeusertoken',
+          type: 'Bearer',
+          id: 899,
+          username: 'user@studio.com',
+          firstName: 'User',
+          lastName: 'Test',
+          admin: false
+        }
+      }).as('loginUserRequest')
+      
+      // Intercepter la liste des sessions
+      cy.intercept('GET', '/api/session', {
+        statusCode: 200,
+        body: mockSessions
+      }).as('getSessionsUser')
+      
+      // Intercepter la requête pour les détails d'une session (vue utilisateur)
+      cy.intercept('GET', '/api/session/*', {
+        statusCode: 200,
+        body: {
+          ...mockSessions[0],
+          teacher: { id: 1, firstName: 'Margot', lastName: 'DELAHAYE' }
+        }
+      }).as('getSessionDetailUser')
+      
+      // Intercepter les requêtes pour les informations utilisateur
+      cy.intercept('GET', '/api/user/*', {
+        statusCode: 200,
+        body: {
+          id: 899,
+          email: 'user@studio.com',
+          firstName: 'User',
+          lastName: 'Test',
+          admin: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      }).as('getUserDetails')
+      
       // Se connecter en tant qu'utilisateur standard
       cy.loginAsUser()
       
@@ -52,6 +163,32 @@ describe('Sessions Permissions', () => {
     })
     
     it('Tentative d\'accès direct à la page de création', () => {
+      // Mêmes intercepteurs que dans le test précédent pour l'utilisateur standard
+      cy.intercept('POST', '/api/auth/login', {
+        statusCode: 200,
+        body: {
+          token: 'fakeusertoken',
+          type: 'Bearer',
+          id: 899,
+          username: 'user@studio.com',
+          firstName: 'User',
+          lastName: 'Test',
+          admin: false
+        }
+      }).as('loginUserRequest')
+      
+      // Intercepter la liste des sessions
+      cy.intercept('GET', '/api/session', {
+        statusCode: 200,
+        body: mockSessions
+      }).as('getSessionsUser')
+      
+      // Intercepter les accès non autorisés
+      cy.intercept('GET', '/api/session/create', {
+        statusCode: 403,
+        body: { message: 'Access forbidden' }
+      }).as('accessForbidden')
+      
       // Se connecter en tant qu'utilisateur standard
       cy.loginAsUser()
       
@@ -63,6 +200,41 @@ describe('Sessions Permissions', () => {
     })
 
     it('Tentative d\'accès direct à la page d\'update', () => {
+      // Mêmes intercepteurs que dans le test précédent pour l'utilisateur standard
+      cy.intercept('POST', '/api/auth/login', {
+        statusCode: 200,
+        body: {
+          token: 'fakeusertoken',
+          type: 'Bearer',
+          id: 899,
+          username: 'user@studio.com',
+          firstName: 'User',
+          lastName: 'Test',
+          admin: false
+        }
+      }).as('loginUserRequest')
+      
+      // Intercepter la liste des sessions
+      cy.intercept('GET', '/api/session', {
+        statusCode: 200,
+        body: mockSessions
+      }).as('getSessionsUser')
+      
+      // Intercepter la requête pour les détails d'une session (vue utilisateur)
+      cy.intercept('GET', '/api/session/*', {
+        statusCode: 200,
+        body: {
+          ...mockSessions[0],
+          teacher: { id: 1, firstName: 'Margot', lastName: 'DELAHAYE' }
+        }
+      }).as('getSessionDetailUser')
+      
+      // Intercepter les accès non autorisés à l'update
+      cy.intercept('GET', '/api/session/*/update', {
+        statusCode: 403,
+        body: { message: 'Access forbidden' }
+      }).as('updateForbidden')
+      
       // Se connecter en tant qu'utilisateur standard
       cy.loginAsUser()
 

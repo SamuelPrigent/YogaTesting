@@ -1,7 +1,67 @@
 /// <reference types="cypress" />
 
 describe('Sessions Validation', () => {
+    // Données mockées pour les tests
+    const mockSessions = [
+      { 
+        id: 413, 
+        name: 'Yoga du matin', 
+        description: 'Réveillez-vous en douceur', 
+        date: '2025-06-10T00:00:00.000+00:00', 
+        teacher_id: 1,
+        users: [],
+        createdAt: '2025-04-05T00:48:12',
+        updatedAt: '2025-04-05T00:48:12'
+      },
+      { 
+        id: 414, 
+        name: 'Pilates intermédiaire', 
+        description: 'Renforcement musculaire', 
+        date: '2025-06-20T00:00:00.000+00:00', 
+        teacher_id: 1,
+        users: [], 
+        createdAt: '2025-04-05T00:48:50',
+        updatedAt: '2025-04-05T00:48:50'
+      }
+    ];
+    
+    const teachers = [
+      { id: 1, firstName: 'Margot', lastName: 'DELAHAYE', createdAt: '2023-01-01', updatedAt: '2023-01-01' }
+    ];
+    
     beforeEach(() => {
+      // Intercepter le login admin
+      cy.intercept('POST', '/api/auth/login', {
+        statusCode: 200,
+        body: {
+          token: 'faketoken',
+          type: 'Bearer',
+          id: 898,
+          username: 'yoga@studio.com',
+          firstName: 'Admin',
+          lastName: 'Admin',
+          admin: true
+        }
+      }).as('loginAdminRequest')
+      
+      // Intercepter la liste des sessions
+      cy.intercept('GET', '/api/session', {
+        statusCode: 200,
+        body: mockSessions
+      }).as('getSessions')
+      
+      // Intercepter la liste des enseignants
+      cy.intercept('GET', '/api/teacher', {
+        statusCode: 200,
+        body: teachers
+      }).as('getTeachers')
+      
+      // Intercepter les requêtes pour les détails d'un enseignant spécifique
+      cy.intercept('GET', '/api/teacher/*', {
+        statusCode: 200,
+        body: teachers[0]
+      }).as('getTeacherDetails')
+      
       cy.loginAsAdmin()
     })
   
@@ -81,7 +141,13 @@ describe('Sessions Validation', () => {
   
     it('Validation du formulaire de modification', () => {
       // Intercepter les requêtes
-      cy.intercept('GET', '/api/session/*').as('getSessionDetails')
+      cy.intercept('GET', '/api/session/*', {
+        statusCode: 200,
+        body: {
+          ...mockSessions[0],
+          teacher: { id: 1, firstName: 'Margot', lastName: 'DELAHAYE' }
+        }
+      }).as('getSessionDetails')
       
       // Accéder à la page d'édition
       cy.get('.items .item').first().within(() => {
