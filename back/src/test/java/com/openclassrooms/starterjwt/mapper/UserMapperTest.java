@@ -29,7 +29,7 @@ public class UserMapperTest {
     class UnitTests {
         @Autowired
         private UserMapper userMapper;
-    
+
         @Test
         @DisplayName("Doit convertir un User en UserDto")
         void shouldMapEntityToDto() {
@@ -44,10 +44,10 @@ public class UserMapperTest {
             user.setAdmin(false);
             user.setCreatedAt(now);
             user.setUpdatedAt(now);
-            
+
             // Exécution
             UserDto dto = userMapper.toDto(user);
-            
+
             // Vérification
             assertNotNull(dto);
             assertEquals(user.getId(), dto.getId());
@@ -59,7 +59,7 @@ public class UserMapperTest {
             assertEquals(user.getCreatedAt(), dto.getCreatedAt());
             assertEquals(user.getUpdatedAt(), dto.getUpdatedAt());
         }
-        
+
         @Test
         @DisplayName("Doit convertir un UserDto en User")
         void shouldMapDtoToEntity() {
@@ -74,10 +74,10 @@ public class UserMapperTest {
             dto.setAdmin(false);
             dto.setCreatedAt(now);
             dto.setUpdatedAt(now);
-            
+
             // Exécution
             User entity = userMapper.toEntity(dto);
-            
+
             // Vérification
             assertNotNull(entity);
             assertEquals(dto.getId(), entity.getId());
@@ -89,33 +89,33 @@ public class UserMapperTest {
             assertEquals(dto.getCreatedAt(), entity.getCreatedAt());
             assertEquals(dto.getUpdatedAt(), entity.getUpdatedAt());
         }
-        
+
         @Test
         @DisplayName("Doit retourner null quand l'entité est null")
         void shouldReturnNullWhenEntityIsNull() {
             // Exécution
             UserDto result = userMapper.toDto((User) null);
-            
+
             // Vérification
             assertNull(result);
         }
-        
+
         @Test
         @DisplayName("Doit retourner null quand le DTO est null")
         void shouldReturnNullWhenDtoIsNull() {
             // Exécution
             User result = userMapper.toEntity((UserDto) null);
-            
+
             // Vérification
             assertNull(result);
         }
-        
+
         @Test
         @DisplayName("Doit convertir une liste de User en liste de UserDto")
         void shouldMapEntityListToDtoList() {
             // Préparation
             LocalDateTime now = LocalDateTime.now();
-            
+
             User user1 = new User();
             user1.setId(1L);
             user1.setEmail("user1@test.com");
@@ -125,7 +125,7 @@ public class UserMapperTest {
             user1.setAdmin(false);
             user1.setCreatedAt(now);
             user1.setUpdatedAt(now);
-            
+
             User user2 = new User();
             user2.setId(2L);
             user2.setEmail("user2@test.com");
@@ -135,12 +135,12 @@ public class UserMapperTest {
             user2.setAdmin(true);
             user2.setCreatedAt(now);
             user2.setUpdatedAt(now);
-            
+
             List<User> entities = Arrays.asList(user1, user2);
-            
+
             // Exécution
             List<UserDto> dtos = userMapper.toDto(entities);
-            
+
             // Vérification
             assertNotNull(dtos);
             assertEquals(2, dtos.size());
@@ -153,13 +153,13 @@ public class UserMapperTest {
             assertEquals(user2.getLastName(), dtos.get(1).getLastName());
             assertEquals(user2.getFirstName(), dtos.get(1).getFirstName());
         }
-        
+
         @Test
         @DisplayName("Doit convertir une liste de UserDto en liste de User")
         void shouldMapDtoListToEntityList() {
             // Préparation
             LocalDateTime now = LocalDateTime.now();
-            
+
             UserDto dto1 = new UserDto();
             dto1.setId(1L);
             dto1.setEmail("user1@test.com");
@@ -169,7 +169,7 @@ public class UserMapperTest {
             dto1.setAdmin(false);
             dto1.setCreatedAt(now);
             dto1.setUpdatedAt(now);
-            
+
             UserDto dto2 = new UserDto();
             dto2.setId(2L);
             dto2.setEmail("user2@test.com");
@@ -179,12 +179,12 @@ public class UserMapperTest {
             dto2.setAdmin(true);
             dto2.setCreatedAt(now);
             dto2.setUpdatedAt(now);
-            
+
             List<UserDto> dtos = Arrays.asList(dto1, dto2);
-            
+
             // Exécution
             List<User> entities = userMapper.toEntity(dtos);
-            
+
             // Vérification
             assertNotNull(entities);
             assertEquals(2, entities.size());
@@ -197,50 +197,50 @@ public class UserMapperTest {
             assertEquals(dto2.getLastName(), entities.get(1).getLastName());
             assertEquals(dto2.getFirstName(), entities.get(1).getFirstName());
         }
-        
+
         @Test
         @DisplayName("Doit retourner null quand la liste d'entités est null")
         void shouldReturnNullWhenEntityListIsNull() {
             // Exécution
             List<UserDto> result = userMapper.toDto((List<User>) null);
-            
+
             // Vérification
             assertNull(result);
         }
-        
+
         @Test
         @DisplayName("Doit retourner null quand la liste de DTOs est null")
         void shouldReturnNullWhenDtoListIsNull() {
             // Exécution
             List<User> result = userMapper.toEntity((List<UserDto>) null);
-            
+
             // Vérification
             assertNull(result);
         }
     }
-    
+
     // ======= Tests d'Intégration =======
     @Nested
     @SpringBootTest
     class IntegrationTests {
         @Autowired
         private UserMapper userMapper;
-        
+
         @Autowired
         private UserRepository userRepository;
-        
+
         @BeforeEach
         void setUp() {
             // Assurons-nous que la BD est vide avant chaque test
             userRepository.deleteAll();
         }
-        
+
         @AfterEach
         void tearDown() {
             // Nettoyage des données de test
             userRepository.deleteAll();
         }
-        
+
         @Test
         @DisplayName("Doit convertir un User persisté en DTO")
         @Transactional
@@ -252,12 +252,12 @@ public class UserMapperTest {
             user.setFirstName("Jean");
             user.setPassword("password123");
             user.setAdmin(false);
-            
+
             User savedUser = userRepository.save(user);
-            
+
             // Exécution
             UserDto dto = userMapper.toDto(savedUser);
-            
+
             // Vérification
             assertNotNull(dto);
             assertEquals(savedUser.getId(), dto.getId());
@@ -269,7 +269,7 @@ public class UserMapperTest {
             assertNotNull(dto.getCreatedAt());
             assertNotNull(dto.getUpdatedAt());
         }
-        
+
         @Test
         @DisplayName("Doit convertir un UserDto en User et le persister")
         @Transactional
@@ -281,11 +281,11 @@ public class UserMapperTest {
             dto.setFirstName("Jean");
             dto.setPassword("password123");
             dto.setAdmin(false);
-            
+
             // Exécution
             User entity = userMapper.toEntity(dto);
             User savedEntity = userRepository.save(entity);
-            
+
             // Vérification
             assertNotNull(savedEntity.getId());
             assertEquals(dto.getEmail(), savedEntity.getEmail());
@@ -294,7 +294,7 @@ public class UserMapperTest {
             assertEquals(dto.getPassword(), savedEntity.getPassword());
             assertEquals(dto.getAdmin(), savedEntity.getAdmin());
         }
-        
+
         @Test
         @DisplayName("Doit effectuer un cycle complet de conversion (entité→DTO→entité) avec persistance")
         @Transactional
@@ -306,15 +306,15 @@ public class UserMapperTest {
             originalUser.setFirstName("Jean");
             originalUser.setPassword("password123");
             originalUser.setAdmin(false);
-            
+
             User savedUser = userRepository.save(originalUser);
-            
+
             // Premier mapping: User → DTO
             UserDto dto = userMapper.toDto(savedUser);
-            
+
             // Second mapping: DTO → User
             User reconvertedUser = userMapper.toEntity(dto);
-            
+
             // Vérification
             assertNotNull(reconvertedUser);
             assertEquals(savedUser.getId(), reconvertedUser.getId());
@@ -324,7 +324,7 @@ public class UserMapperTest {
             assertEquals(savedUser.getPassword(), reconvertedUser.getPassword());
             assertEquals(savedUser.getAdmin(), reconvertedUser.getAdmin());
         }
-        
+
         @Test
         @DisplayName("Doit convertir une liste de Users en liste de DTOs avec persistance")
         @Transactional
@@ -336,22 +336,22 @@ public class UserMapperTest {
             user1.setFirstName("Jean");
             user1.setPassword("password123");
             user1.setAdmin(false);
-            
+
             User user2 = new User();
             user2.setEmail("user2@test.com");
             user2.setLastName("Martin");
             user2.setFirstName("Marie");
             user2.setPassword("password456");
             user2.setAdmin(true);
-            
+
             // Sauvegarde des entités
             User savedUser1 = userRepository.save(user1);
             User savedUser2 = userRepository.save(user2);
             List<User> users = Arrays.asList(savedUser1, savedUser2);
-            
+
             // Exécution
             List<UserDto> dtos = userMapper.toDto(users);
-            
+
             // Vérification
             assertNotNull(dtos);
             assertEquals(2, dtos.size());
