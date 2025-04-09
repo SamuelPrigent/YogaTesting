@@ -46,7 +46,9 @@ describe('Login & Account information', () => {
 
     // Remplir le formulaire avec un mot de passe incorrect
     cy.get('input[formControlName=email]').type(adminData.email);
-    cy.get('input[formControlName=password]').type('mauvais_mot_de_passe');
+    cy.get('input[formControlName=password]')
+      .should('not.be.disabled')
+      .type('mauvais_mot_de_passe');
 
     // Soumettre le formulaire
     cy.get('button[type="submit"]').click();
